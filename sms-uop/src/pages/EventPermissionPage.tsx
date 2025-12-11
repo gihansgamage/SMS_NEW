@@ -5,6 +5,7 @@ import StepIndicator from '../components/Common/StepIndicator';
 import FormField from '../components/Common/FormField';
 import ReviewStep from '../components/Registration/steps/ReviewStep';
 import { apiService } from '../services/api';
+import { FACULTIES } from '../types';
 
 const steps = [
   { title: 'Applicant', description: 'Personal details' },
@@ -143,7 +144,21 @@ const EventPermissionPage: React.FC = () => {
           <FormField label="Full Name" name="applicantName" value={formData.applicantName} onChange={(e) => updateFormData({applicantName: e.target.value})} required />
           <FormField label="Registration No" name="applicantRegNo" value={formData.applicantRegNo} onChange={(e) => updateFormData({applicantRegNo: e.target.value})} required />
           <FormField label="Email" name="applicantEmail" type="email" value={formData.applicantEmail} onChange={(e) => updateFormData({applicantEmail: e.target.value})} required />
-          <FormField label="Faculty" name="applicantFaculty" value={formData.applicantFaculty} onChange={(e) => updateFormData({applicantFaculty: e.target.value})} required placeholder="e.g. Faculty of Engineering" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Faculty <span className="text-red-500">*</span></label>
+            <select
+              name="applicantFaculty"
+              value={formData.applicantFaculty}
+              onChange={(e) => updateFormData({applicantFaculty: e.target.value})}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Faculty...</option>
+              {FACULTIES.map(faculty => (
+                <option key={faculty} value={faculty}>{faculty}</option>
+              ))}
+            </select>
+          </div>
           <FormField label="Mobile" name="applicantMobile" value={formData.applicantMobile} onChange={(e) => updateFormData({applicantMobile: e.target.value})} required />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Position in Society <span className="text-red-500">*</span></label>
