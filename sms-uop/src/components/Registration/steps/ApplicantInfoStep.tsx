@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowRight } from 'lucide-react';
-import { SocietyRegistration, FACULTIES } from '../../../types';
+import { SocietyRegistration, SocietyRenewal, FACULTIES } from '../../../types';
 import FormField from '../../Common/FormField';
 import { validateEmail, validateMobile, validateRegistrationNumber } from '../../../utils/validation';
 
 interface ApplicantInfoStepProps {
-  formData: Partial<SocietyRegistration>;
-  updateFormData: (updates: Partial<SocietyRegistration>) => void;
+  formData: Partial<SocietyRegistration> | Partial<SocietyRenewal>;
+  updateFormData: (updates: Partial<SocietyRegistration> | Partial<SocietyRenewal>) => void;
   onNext: () => void;
 }
 

@@ -1,18 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Download, Send, FileText, Eye } from 'lucide-react';
-import { SocietyRegistration } from '../../../types';
+import { SocietyRegistration, SocietyRenewal } from '../../../types';
 import EmailValidationIndicator from '../../Common/EmailValidationIndicator';
 
 interface ReviewStepProps {
-  formData: Partial<SocietyRegistration>;
+  formData: Partial<SocietyRegistration> | Partial<SocietyRenewal>;
   onSubmit: () => void;
   onPrev: () => void;
+  isRenewal?: boolean;
 }
 
 const ReviewStep: React.FC<ReviewStepProps> = ({
                                                  formData,
                                                  onSubmit,
-                                                 onPrev
+                                                 onPrev,
+                                                 isRenewal = false
                                                }) => {
   const [showPreview, setShowPreview] = useState(false);
 
