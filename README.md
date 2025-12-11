@@ -17,7 +17,7 @@ This system enables:
 
 - **Frontend:** React 18 + Vite + TailwindCSS
 - **Backend:** Spring Boot 3.2.6 + Java 17
-- **Database:** Supabase (PostgreSQL)
+- **Database:** MySQL 8.0
 - **Authentication:** Google OAuth2
 - **Email:** SMTP (Gmail)
 
@@ -25,7 +25,7 @@ This system enables:
 
 ### Backend
 - ✅ Complete database schema (15+ tables)
-- ✅ PostgreSQL/Supabase integration
+- ✅ MySQL integration
 - ✅ All JPA entities properly configured
 - ✅ Full approval workflow logic
 - ✅ Email notification service
@@ -36,11 +36,10 @@ This system enables:
 - ✅ Role-based access control
 
 ### Database
-- ✅ All tables created in Supabase
-- ✅ Row Level Security enabled
+- ✅ All tables with proper relationships
 - ✅ Proper indexes for performance
 - ✅ Pre-populated admin users
-- ✅ Unique constraints and relationships
+- ✅ Unique constraints and foreign keys
 
 ### Security
 - ✅ Google OAuth2 configured
@@ -55,14 +54,33 @@ This system enables:
 Ensure you have:
 - Java 17 or higher
 - Maven 3.6+
+- MySQL 8.0 or higher
 - Node.js 18+ and npm
 - Git
 
-### Step 1: Configure Credentials
+### Step 1: Setup MySQL Database
+
+```bash
+# Start MySQL server
+mysql -u root -p
+
+# Create database
+CREATE DATABASE sms_uop;
+
+# Run the database setup script
+mysql -u root -p sms_uop < backend/src/main/resources/database_setup.sql
+```
+
+### Step 2: Configure Credentials
 
 Edit `.env` in the project root:
 
 ```env
+# Database
+DB_URL=jdbc:mysql://localhost:3306/sms_uop?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=NewStrongPassword123!
+
 # Google OAuth (⚠️ REQUIRED - Add your credentials)
 GOOGLE_CLIENT_ID=your-google-client-id-here
 GOOGLE_CLIENT_SECRET=your-google-client-secret-here
@@ -72,16 +90,7 @@ EMAIL_USERNAME=your-email@gmail.com
 EMAIL_PASSWORD=your-16-char-app-password
 STUDENT_SERVICE_EMAIL=studentservice@pdn.ac.lk
 
-# Database (✅ Already configured)
-DB_URL=jdbc:postgresql://aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require
-DB_USERNAME=postgres.nizbwzjcycuwureorahc
-DB_PASSWORD=SMS-UOP-Database-2024
-
-# Frontend (✅ Already configured)
-VITE_SUPABASE_URL=https://nizbwzjcycuwureorahc.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-
-# URLs (✅ Already configured)
+# URLs
 FRONTEND_URL=http://localhost:5173
 BASE_URL=http://localhost:8080
 ```
@@ -96,7 +105,7 @@ BASE_URL=http://localhost:8080
 2. Go to [App Passwords](https://myaccount.google.com/apppasswords)
 3. Generate password for "Mail"
 
-### Step 2: Run Backend
+### Step 3: Run Backend
 
 ```bash
 cd backend
@@ -108,7 +117,7 @@ mvn spring-boot:run
 
 Backend will be available at: `http://localhost:8080`
 
-### Step 3: Run Frontend
+### Step 4: Run Frontend
 
 ```bash
 cd sms-uop
@@ -157,16 +166,11 @@ These users can login immediately once you configure Google OAuth:
 | Dean Science | s20369@sci.pdn.ac.lk | Faculty-specific |
 | Other Deans | dean.*@pdn.ac.lk | Faculty-specific |
 
-## 📚 Documentation
-
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed setup instructions
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Complete technical documentation
-- **[backend/README.md](backend/README.md)** - Backend-specific documentation
-
 ## 🔧 Configuration Files
 
 - `.env` - Environment variables (add your credentials here)
 - `backend/src/main/resources/application.yml` - Spring Boot configuration
+- `backend/src/main/resources/database_setup.sql` - MySQL database schema
 - `backend/pom.xml` - Maven dependencies
 - `sms-uop/vite.config.ts` - Frontend build configuration
 
@@ -191,7 +195,6 @@ These users can login immediately once you configure Google OAuth:
 - ✅ Database-verified authorized users (`is_active = TRUE`)
 - ✅ Protected admin endpoints
 - ✅ Complete activity logging
-- ✅ Row Level Security in Supabase
 
 ## 📧 Email Notifications
 
@@ -239,6 +242,13 @@ System generates PDFs for:
 - Verify Java 17: `java -version`
 - Check port 8080 is available
 - Verify database credentials in `.env`
+- Ensure MySQL is running
+
+### Database connection issues
+- Verify MySQL is running: `mysql -u root -p`
+- Check database exists: `SHOW DATABASES;`
+- Verify credentials in `.env`
+- Check port 3306 is accessible
 
 ### OAuth login fails
 - Check Google credentials in `.env`
@@ -249,11 +259,6 @@ System generates PDFs for:
 - Use Gmail app password (not regular password)
 - Enable 2FA on Gmail account
 - Verify SMTP settings
-
-### Database connection issues
-- Check internet connection
-- Verify Supabase credentials
-- Test connection: `psql "postgresql://postgres.nizbwzjcycuwureorahc@..."`
 
 ## 📊 Admin Panel Tabs
 
@@ -313,6 +318,8 @@ Societies are uniquely identified by (name, year) combination.
 ## 📈 Next Steps
 
 1. **Immediate:**
+   - [ ] Install and start MySQL
+   - [ ] Run database setup script
    - [ ] Add Google OAuth credentials to `.env`
    - [ ] Add Email credentials to `.env`
    - [ ] Start backend: `mvn spring-boot:run`
@@ -333,7 +340,7 @@ Societies are uniquely identified by (name, year) combination.
    - [ ] Update Student Service contact
 
 4. **Production:**
-   - [ ] Set up production Supabase
+   - [ ] Set up production MySQL server
    - [ ] Configure production URLs
    - [ ] Enable HTTPS
    - [ ] Set up monitoring
@@ -342,10 +349,10 @@ Societies are uniquely identified by (name, year) combination.
 ## 📞 Support
 
 For issues:
-1. Check `SETUP_GUIDE.md` for detailed instructions
-2. Review `IMPLEMENTATION_SUMMARY.md` for technical details
-3. Check application logs
-4. Verify environment configuration
+1. Check application logs
+2. Verify environment configuration
+3. Review database schema
+4. Test database connection
 
 ## 📝 License
 
@@ -356,6 +363,11 @@ University of Peradeniya - Student Service Division
 ## ⚡ Quick Command Reference
 
 ```bash
+# Database
+mysql -u root -p                                          # Connect to MySQL
+CREATE DATABASE sms_uop;                                  # Create database
+mysql -u root -p sms_uop < backend/src/main/resources/database_setup.sql
+
 # Backend
 cd backend
 mvn clean install      # Build project
@@ -367,14 +379,10 @@ cd sms-uop
 npm install           # Install dependencies
 npm run dev          # Start dev server
 npm run build        # Build for production
-
-# Database
-# Check Supabase dashboard at:
-# https://supabase.com/dashboard
 ```
 
 ---
 
 **System Status:** ✅ Ready to Deploy
 
-All components are implemented and ready. Just add your credentials and start the servers!
+All components are implemented and ready. Just setup MySQL, add your credentials, and start the servers!
