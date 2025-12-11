@@ -29,6 +29,8 @@ export const apiService = {
     getActive: () => apiClient.get('/societies/active'),
     getStatistics: () => apiClient.get('/societies/statistics'),
     register: (data: any) => apiClient.post('/societies/register', data),
+    getLatestData: (societyName: string) => apiClient.get(`/societies/latest-data?societyName=${encodeURIComponent(societyName)}`),
+    downloadRegistrationPDF: (id: string) => apiClient.get(`/societies/registration/download/${id}`, { responseType: 'blob' }),
   },
 
   renewals: {
@@ -50,6 +52,8 @@ export const apiService = {
     getPending: () => apiClient.get('/events/admin/pending'),
     getAll: (params?: { page?: number; size?: number; status?: string }) =>
         apiClient.get('/events/admin/all', { params }),
+    validateApplicant: (data: { societyName: string; position: string; regNo: string; email: string }) =>
+        apiClient.post('/events/validate-applicant', data),
   },
 
   admin: {

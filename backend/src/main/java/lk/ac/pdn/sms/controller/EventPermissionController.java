@@ -76,4 +76,15 @@ public class EventPermissionController {
             Principal principal) {
         return ResponseEntity.ok(eventService.rejectRequest(id, dto, principal.getName()));
     }
+
+    @PostMapping("/validate-applicant")
+    public ResponseEntity<Boolean> validateApplicant(@RequestBody java.util.Map<String, String> request) {
+        String societyName = request.get("societyName");
+        String position = request.get("position");
+        String regNo = request.get("regNo");
+        String email = request.get("email");
+
+        boolean isValid = eventService.validateApplicantPosition(societyName, position, regNo, email);
+        return ResponseEntity.ok(isValid);
+    }
 }

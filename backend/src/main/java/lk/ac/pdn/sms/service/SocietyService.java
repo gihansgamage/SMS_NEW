@@ -202,4 +202,14 @@ public class SocietyService {
 
         return reg;
     }
+
+    public Society getLatestSocietyData(String societyName) {
+        return societyRepository.findBySocietyName(societyName)
+                .orElseThrow(() -> new RuntimeException("Society not found with name: " + societyName));
+    }
+
+    public SocietyRegistration getRegistrationById(Long id) {
+        return registrationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Registration not found with id: " + id));
+    }
 }

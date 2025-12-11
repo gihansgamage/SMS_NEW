@@ -19,6 +19,7 @@ const EventPermissionPage: React.FC = () => {
   const { societies, addActivityLog } = useData();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   // Filter and Sort Active Societies
   const activeSocieties = [...societies]
@@ -72,9 +73,41 @@ const EventPermissionPage: React.FC = () => {
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
-  const nextStep = () => {
+  const validateStep1 = async () => {
+    if (!formData.societyName || !formData.applicantPosition || !formData.applicantRegNo || !formData.applicantEmail) {
+      setValidationError('Please fill all required fields');
+      return false;
+    }
+
+    try {
+      const response = await apiService.events.validateApplicant({
+        societyName: formData.societyName,
+        position: formData.applicantPosition,
+        regNo: formData.applicantRegNo,
+        email: formData.applicantEmail
+      });
+
+      if (!response.data) {
+        setValidationError('Invalid credentials. Registration number or email does not match the selected position in society records. Please use official details.');
+        return false;
+      }
+
+      setValidationError('');
+      return true;
+    } catch (error) {
+      setValidationError('Failed to validate credentials. Please try again.');
+      return false;
+    }
+  };
+
+  const nextStep = async () => {
+    if (currentStep === 0) {
+      const isValid = await validateStep1();
+      if (!isValid) return;
+    }
     if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
   };
+
   const prevStep = () => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
@@ -112,8 +145,31 @@ const EventPermissionPage: React.FC = () => {
           <FormField label="Email" name="applicantEmail" type="email" value={formData.applicantEmail} onChange={(e) => updateFormData({applicantEmail: e.target.value})} required />
           <FormField label="Faculty" name="applicantFaculty" value={formData.applicantFaculty} onChange={(e) => updateFormData({applicantFaculty: e.target.value})} required placeholder="e.g. Faculty of Engineering" />
           <FormField label="Mobile" name="applicantMobile" value={formData.applicantMobile} onChange={(e) => updateFormData({applicantMobile: e.target.value})} required />
-          <FormField label="Position" name="applicantPosition" value={formData.applicantPosition} onChange={(e) => updateFormData({applicantPosition: e.target.value})} required placeholder="e.g. Secretary" />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Position in Society <span className="text-red-500">*</span></label>
+            <select
+              name="applicantPosition"
+              value={formData.applicantPosition}
+              onChange={(e) => updateFormData({applicantPosition: e.target.value})}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              required
+            >
+              <option value="">Select Position...</option>
+              <option value="President">President</option>
+              <option value="Vice President">Vice President</option>
+              <option value="Secretary">Secretary</option>
+              <option value="Joint Secretary">Joint Secretary</option>
+              <option value="Junior Treasurer">Junior Treasurer</option>
+              <option value="Editor">Editor</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">Only key positions can request event permissions</p>
+          </div>
         </div>
+        {validationError && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            {validationError}
+          </div>
+        )}
         <div className="flex justify-end mt-6"><button onClick={nextStep} className="bg-blue-600 text-white px-6 py-2 rounded-lg">Next</button></div>
       </div>
   );

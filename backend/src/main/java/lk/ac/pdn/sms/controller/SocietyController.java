@@ -78,4 +78,25 @@ public class SocietyController {
         Object stats = societyService.getSocietyStatistics();
         return ResponseEntity.ok(stats);
     }
+
+    @GetMapping("/latest-data")
+    public ResponseEntity<Society> getLatestSocietyData(@RequestParam String societyName) {
+        Society society = societyService.getLatestSocietyData(societyName);
+        return ResponseEntity.ok(society);
+    }
+
+    @GetMapping("/registration/download/{id}")
+    public ResponseEntity<byte[]> downloadRegistrationPDF(@PathVariable Long id) {
+        try {
+            SocietyRegistration registration = societyService.getRegistrationById(id);
+            byte[] pdfBytes = pdfService.generateRegistrationPDF(registration);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=registration_" + id + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

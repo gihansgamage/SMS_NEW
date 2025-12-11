@@ -220,4 +220,54 @@ public class EventPermissionService {
             throw new RuntimeException("Preview Generation Failed");
         }
     }
+
+    public boolean validateApplicantPosition(String societyName, String position, String regNo, String email) {
+        Society society = societyRepository.findBySocietyName(societyName)
+                .orElseThrow(() -> new RuntimeException("Society not found"));
+
+        String normalizedRegNo = normalizeRegistrationNumber(regNo);
+
+        String officialRegNo = "";
+        String officialEmail = "";
+
+        switch (position.toLowerCase()) {
+            case "president":
+                officialRegNo = society.getPresidentRegNo();
+                officialEmail = society.getPresidentEmail();
+                break;
+            case "vice president":
+            case "vice-president":
+                officialRegNo = society.getVicePresidentRegNo();
+                officialEmail = society.getVicePresidentEmail();
+                break;
+            case "secretary":
+                officialRegNo = society.getSecretaryRegNo();
+                officialEmail = society.getSecretaryEmail();
+                break;
+            case "joint secretary":
+            case "joint-secretary":
+                officialRegNo = society.getJointSecretaryRegNo();
+                officialEmail = society.getJointSecretaryEmail();
+                break;
+            case "junior treasurer":
+            case "junior-treasurer":
+                officialRegNo = society.getJuniorTreasurerRegNo();
+                officialEmail = society.getJuniorTreasurerEmail();
+                break;
+            case "editor":
+                officialRegNo = society.getEditorRegNo();
+                officialEmail = society.getEditorEmail();
+                break;
+            default:
+                return false;
+        }
+
+        return normalizeRegistrationNumber(officialRegNo).equals(normalizedRegNo) &&
+               officialEmail.equalsIgnoreCase(email);
+    }
+
+    private String normalizeRegistrationNumber(String regNo) {
+        if (regNo == null) return "";
+        return regNo.toUpperCase().replaceAll("[\\s/]", "");
+    }
 }

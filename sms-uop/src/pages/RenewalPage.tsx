@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
-import { FACULTIES, SocietyRenewal, AdvisoryBoardMember, CommitteeMember, Member, PlanningEvent } from '../types';
+import { Society, SocietyRenewal } from '../types';
 import StepIndicator from '../components/Common/StepIndicator';
 import ApplicantInfoStep from '../components/Registration/steps/ApplicantInfoStep';
 import SocietyInfoStep from '../components/Registration/steps/SocietyInfoStep';
 import OfficialsStep from '../components/Registration/steps/OfficialsStep';
 import MembersStep from '../components/Registration/steps/MembersStep';
 import ReviewStep from '../components/Registration/steps/ReviewStep';
+import { apiService } from '../services/api';
 
 const steps = [
+  { title: 'Select Society', description: 'Choose society to renew' },
   { title: 'Applicant', description: 'Personal information' },
   { title: 'Society', description: 'Basic details' },
   { title: 'Officials', description: 'Committee members' },
@@ -17,11 +19,13 @@ const steps = [
   { title: 'Review', description: 'Final review' }
 ];
 
-const RenewalPage: React.FC = () => {
+const RenewalPageNew: React.FC = () => {
   const navigate = useNavigate();
   const { societies, addRenewal, addActivityLog } = useData();
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedSocietyName, setSelectedSocietyName] = useState('');
   const [formData, setFormData] = useState<Partial<SocietyRenewal>>({
     applicantFullName: '',
     applicantRegNo: '',
@@ -58,10 +62,87 @@ const RenewalPage: React.FC = () => {
 
   const activeSocieties = societies.filter(s => s.status === 'active');
 
+  const handleSocietySelect = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const societyName = e.target.value;
+    setSelectedSocietyName(societyName);
+
+    if (!societyName) return;
+
+    setIsLoading(true);
+    try {
+      const response = await apiService.societies.getLatestData(societyName);
+      const society: Society = response.data;
+
+      // Auto-fill form data from previous year
+      setFormData(prev => ({
+        ...prev,
+        societyName: society.societyName,
+        seniorTreasurer: {
+          title: society.seniorTreasurer?.title || '',
+          name: society.seniorTreasurer?.name || '',
+          designation: society.seniorTreasurer?.designation || '',
+          department: society.seniorTreasurer?.department || '',
+          email: society.seniorTreasurer?.email || '',
+          address: society.seniorTreasurer?.address || '',
+          mobile: society.seniorTreasurer?.mobile || ''
+        },
+        president: {
+          regNo: society.president?.regNo || '',
+          name: society.president?.name || '',
+          address: society.president?.address || '',
+          email: society.president?.email || '',
+          mobile: society.president?.mobile || ''
+        },
+        vicePresident: {
+          regNo: society.vicePresident?.regNo || '',
+          name: society.vicePresident?.name || '',
+          address: society.vicePresident?.address || '',
+          email: society.vicePresident?.email || '',
+          mobile: society.vicePresident?.mobile || ''
+        },
+        secretary: {
+          regNo: society.secretary?.regNo || '',
+          name: society.secretary?.name || '',
+          address: society.secretary?.address || '',
+          email: society.secretary?.email || '',
+          mobile: society.secretary?.mobile || ''
+        },
+        jointSecretary: {
+          regNo: society.jointSecretary?.regNo || '',
+          name: society.jointSecretary?.name || '',
+          address: society.jointSecretary?.address || '',
+          email: society.jointSecretary?.email || '',
+          mobile: society.jointSecretary?.mobile || ''
+        },
+        juniorTreasurer: {
+          regNo: society.juniorTreasurer?.regNo || '',
+          name: society.juniorTreasurer?.name || '',
+          address: society.juniorTreasurer?.address || '',
+          email: society.juniorTreasurer?.email || '',
+          mobile: society.juniorTreasurer?.mobile || ''
+        },
+        editor: {
+          regNo: society.editor?.regNo || '',
+          name: society.editor?.name || '',
+          address: society.editor?.address || '',
+          email: society.editor?.email || '',
+          mobile: society.editor?.mobile || ''
+        },
+        website: society.website || ''
+      }));
+
+      alert('Society data loaded! You can now update any fields before submitting.');
+    } catch (error) {
+      console.error('Failed to load society data:', error);
+      alert('Failed to load society data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const updateFormData = (updates: Partial<SocietyRenewal>) => {
     setFormData(prev => ({ ...prev, ...updates }));
 
-    // Clear related errors when data is updated
     Object.keys(updates).forEach(key => {
       if (errors[key]) {
         setErrors(prev => {
@@ -85,8 +166,7 @@ const RenewalPage: React.FC = () => {
     }
   };
 
-  const handleSubmit = () => {
-    // Validate required fields
+  const handleSubmit = async () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!formData.bankAccount || formData.bankAccount.trim() === '') {
@@ -108,7 +188,6 @@ const RenewalPage: React.FC = () => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      // Scroll to first error
       const firstErrorField = Object.keys(newErrors)[0];
       const element = document.querySelector(`[name="${firstErrorField}"]`);
       if (element) {
@@ -117,78 +196,112 @@ const RenewalPage: React.FC = () => {
       return;
     }
 
-    const renewal: SocietyRenewal = {
-      ...formData,
-      id: Math.random().toString(36).substr(2, 9),
-      status: 'pending_dean',
-      isDeanApproved: false,
-      isARApproved: false,
-      isVCApproved: false,
-      submittedDate: new Date().toISOString(),
-      year: new Date().getFullYear()
-    } as SocietyRenewal;
+    try {
+      setIsLoading(true);
+      await apiService.renewals.submit(formData);
 
-    addRenewal(renewal);
-    addActivityLog(
+      addActivityLog(
         'Society Renewal Submitted',
-        renewal.societyName,
-        'user-' + renewal.applicantRegNo,
-        renewal.applicantFullName
-    );
+        formData.societyName || '',
+        'user-' + formData.applicantRegNo,
+        formData.applicantFullName || ''
+      );
 
-    alert(`Renewal application submitted successfully! A confirmation email has been sent to ${renewal.applicantEmail}`);
-    navigate('/');
+      alert(`Renewal application submitted successfully! A confirmation email has been sent to ${formData.applicantEmail}`);
+      navigate('/');
+    } catch (error) {
+      console.error('Failed to submit renewal:', error);
+      alert('Failed to submit renewal. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderStep = () => {
     switch (currentStep) {
       case 0:
         return (
-            <ApplicantInfoStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-            />
+          <div>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Select Society to Renew</h2>
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Society Name <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={selectedSocietyName}
+                onChange={handleSocietySelect}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                disabled={isLoading}
+              >
+                <option value="">-- Select a registered society --</option>
+                {activeSocieties.map(society => (
+                  <option key={society.id} value={society.societyName}>
+                    {society.societyName}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-2 text-sm text-gray-600">
+                Only registered active societies can renew their registration
+              </p>
+            </div>
+            <div className="flex justify-end mt-8">
+              <button
+                onClick={nextStep}
+                disabled={!selectedSocietyName || isLoading}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isLoading ? 'Loading...' : 'Next'}
+              </button>
+            </div>
+          </div>
         );
       case 1:
         return (
-            <SocietyInfoStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-                onPrev={prevStep}
-                isRenewal={true}
-                activeSocieties={activeSocieties}
-                errors={errors}
-            />
+          <ApplicantInfoStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onNext={nextStep}
+          />
         );
       case 2:
         return (
-            <OfficialsStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-                onPrev={prevStep}
-            />
+          <SocietyInfoStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onNext={nextStep}
+            onPrev={prevStep}
+            isRenewal={true}
+            activeSocieties={activeSocieties}
+            errors={errors}
+          />
         );
       case 3:
         return (
-            <MembersStep
-                formData={formData}
-                updateFormData={updateFormData}
-                onNext={nextStep}
-                onPrev={prevStep}
-                isRenewal={true}
-            />
+          <OfficialsStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
         );
       case 4:
         return (
-            <ReviewStep
-                formData={formData}
-                onSubmit={handleSubmit}
-                onPrev={prevStep}
-                isRenewal={true}
-            />
+          <MembersStep
+            formData={formData}
+            updateFormData={updateFormData}
+            onNext={nextStep}
+            onPrev={prevStep}
+            isRenewal={true}
+          />
+        );
+      case 5:
+        return (
+          <ReviewStep
+            formData={formData}
+            onSubmit={handleSubmit}
+            onPrev={prevStep}
+            isRenewal={true}
+          />
         );
       default:
         return null;
@@ -196,21 +309,21 @@ const RenewalPage: React.FC = () => {
   };
 
   return (
-      <div className="min-h-screen bg-gray-50 py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-xl shadow-lg p-8">
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Society Renewal</h1>
-              <p className="text-gray-600">Renew your existing society registration with the University of Peradeniya</p>
-            </div>
-
-            <StepIndicator steps={steps} currentStep={currentStep} />
-
-            {renderStep()}
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Society Renewal</h1>
+            <p className="text-gray-600">Renew your existing society registration with the University of Peradeniya</p>
           </div>
+
+          <StepIndicator steps={steps} currentStep={currentStep} />
+
+          {renderStep()}
         </div>
       </div>
+    </div>
   );
 };
 
-export default RenewalPage;
+export default RenewalPageNew;
