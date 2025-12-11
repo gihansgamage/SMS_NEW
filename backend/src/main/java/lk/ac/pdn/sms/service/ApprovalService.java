@@ -152,14 +152,27 @@ public class ApprovalService {
 
         if (dto.getStatus() != null && dto.getStatus().contains("REJECTED")) {
             event.setStatus(EventPermission.EventStatus.REJECTED);
+            event.setRejectionReason(dto.getComment());
         } else {
-            // Simplified Flow: Dean -> AR -> VC
-            if (event.getStatus() == EventPermission.EventStatus.PENDING_DEAN) {
-                event.setStatus(EventPermission.EventStatus.PENDING_AR);
-            } else if (event.getStatus() == EventPermission.EventStatus.PENDING_AR) {
-                event.setStatus(EventPermission.EventStatus.PENDING_VC);
-            } else if (event.getStatus() == EventPermission.EventStatus.PENDING_VC) {
-                event.setStatus(EventPermission.EventStatus.APPROVED);
+            switch (event.getStatus()) {
+                case PENDING_DEAN:
+                    event.setStatus(EventPermission.EventStatus.PENDING_PREMISES);
+                    event.setIsDeanApproved(true);
+                    break;
+                case PENDING_PREMISES:
+                    event.setStatus(EventPermission.EventStatus.PENDING_AR);
+                    event.setIsPremisesApproved(true);
+                    break;
+                case PENDING_AR:
+                    event.setStatus(EventPermission.EventStatus.PENDING_VC);
+                    event.setIsArApproved(true);
+                    break;
+                case PENDING_VC:
+                    event.setStatus(EventPermission.EventStatus.APPROVED);
+                    event.setIsVcApproved(true);
+                    break;
+                default:
+                    break;
             }
         }
         eventPermissionRepository.save(event);

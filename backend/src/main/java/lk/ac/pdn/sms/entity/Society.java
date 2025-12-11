@@ -13,7 +13,9 @@ import java.util.Map;
 import java.util.HashMap;
 
 @Entity
-@Table(name = "societies")
+@Table(name = "societies", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"society_name", "year"})
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,50 +24,67 @@ public class Society {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "society_name", nullable = false, unique = true)
+    @Column(name = "society_name", nullable = false)
     private String societyName;
 
-    @Column(name = "registered_date", nullable = false)
-    private LocalDate registeredDate;
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private SocietyStatus status = SocietyStatus.ACTIVE;
+    private String faculty;
 
     @Column(nullable = false)
     private Integer year;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SocietyStatus status = SocietyStatus.PENDING;
+
     @Column(columnDefinition = "TEXT")
     private String aims;
 
-    private String agmDate;
+    private LocalDate agmDate;
+    private String website;
     private String bankAccount;
     private String bankName;
-    private String website;
 
-    @Column(name = "primary_faculty")
-    private String primaryFaculty; // Fixed field name
+    private String presidentName;
+    private String presidentRegNo;
+    private String presidentEmail;
+    private String presidentMobile;
 
-    @Column(name = "last_renewal_year")
-    private Integer lastRenewalYear;
+    private String vicePresidentName;
+    private String vicePresidentRegNo;
+    private String vicePresidentEmail;
+    private String vicePresidentMobile;
 
-    // Flattened Senior Treasurer Fields
-    private String seniorTreasurerTitle;
-    private String seniorTreasurerFullName;
-    private String seniorTreasurerDesignation;
-    private String seniorTreasurerDepartment;
+    private String secretaryName;
+    private String secretaryRegNo;
+    private String secretaryEmail;
+    private String secretaryMobile;
+
+    private String jointSecretaryName;
+    private String jointSecretaryRegNo;
+    private String jointSecretaryEmail;
+    private String jointSecretaryMobile;
+
+    private String treasurerName;
+    private String treasurerRegNo;
+    private String treasurerEmail;
+    private String treasurerMobile;
+
+    private String editorName;
+    private String editorRegNo;
+    private String editorEmail;
+    private String editorMobile;
+
+    private String seniorTreasurerName;
     private String seniorTreasurerEmail;
-    private String seniorTreasurerAddress;
-    private String seniorTreasurerMobile;
+
+    private LocalDate registeredDate;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "society", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<SocietyOfficial> officials;
 
     @PrePersist
     protected void onCreate() {
@@ -81,51 +100,6 @@ public class Society {
     }
 
     public enum SocietyStatus {
-        ACTIVE, INACTIVE
-    }
-
-    // --- JSON Helpers ---
-    @JsonProperty("president")
-    @Transient
-    public Map<String, String> getPresidentInfo() {
-        return getOfficialInfo("PRESIDENT");
-    }
-
-    @JsonProperty("secretary")
-    @Transient
-    public Map<String, String> getSecretaryInfo() {
-        return getOfficialInfo("SECRETARY");
-    }
-
-    @JsonProperty("juniorTreasurer")
-    @Transient
-    public Map<String, String> getJuniorTreasurerInfo() {
-        return getOfficialInfo("JUNIOR_TREASURER");
-    }
-
-    @JsonProperty("seniorTreasurer")
-    @Transient
-    public Map<String, String> getSeniorTreasurerInfo() {
-        Map<String, String> info = new HashMap<>();
-        info.put("name", (seniorTreasurerTitle != null ? seniorTreasurerTitle + " " : "") + seniorTreasurerFullName);
-        info.put("email", seniorTreasurerEmail);
-        info.put("mobile", seniorTreasurerMobile);
-        return info;
-    }
-
-    private Map<String, String> getOfficialInfo(String position) {
-        Map<String, String> info = new HashMap<>();
-        if (officials != null) {
-            for (SocietyOfficial official : officials) {
-                if (official.getPosition().name().equalsIgnoreCase(position)) {
-                    info.put("name", official.getName());
-                    info.put("email", official.getEmail());
-                    info.put("mobile", official.getMobile());
-                    info.put("regNo", official.getRegNo());
-                    return info;
-                }
-            }
-        }
-        return null;
+        ACTIVE, INACTIVE, PENDING
     }
 }
