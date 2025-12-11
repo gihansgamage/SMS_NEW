@@ -1,6 +1,7 @@
 package lk.ac.pdn.sms.config;
 
 import lk.ac.pdn.sms.service.CustomOAuth2UserService;
+import lk.ac.pdn.sms.service.CustomOidcUserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,12 +23,15 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomOidcUserService customOidcUserService; // New OIDC Service
 
     @Value("${app.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
-    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService) {
+    public SecurityConfig(CustomOAuth2UserService customOAuth2UserService,
+                          CustomOidcUserService customOidcUserService) {
         this.customOAuth2UserService = customOAuth2UserService;
+        this.customOidcUserService = customOidcUserService;
     }
 
     @Bean
@@ -44,8 +48,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/validation/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/oauth2/**").permitAll()
-
-                        // Static Resources
                         .requestMatchers("/error", "/favicon.ico").permitAll()
 
                         // Role Based Access
@@ -58,10 +60,10 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                // OAUTH2 LOGIN ONLY
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
+                                .userService(customOAuth2UserService) // Standard OAuth2
+                                .oidcUserService(customOidcUserService) // ADDED: Handle Google OIDC
                         )
                         .successHandler(oauth2AuthenticationSuccessHandler())
                         .failureHandler((request, response, exception) -> {

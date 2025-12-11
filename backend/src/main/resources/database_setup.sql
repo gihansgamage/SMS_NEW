@@ -1,6 +1,6 @@
 -- Create Database
-CREATE DATABASE IF NOT EXISTS sms_db;
-USE sms_db;
+CREATE DATABASE IF NOT EXISTS sms_uop;
+USE sms_uop;
 
 -- ==========================================
 -- 1. ADMIN USERS (System Access)
