@@ -121,6 +121,15 @@ public class SocietyRegistration {
     private LocalDateTime arApprovalDate;
     private LocalDateTime vcApprovalDate;
 
+    @Column(columnDefinition = "TEXT")
+    private String deanComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String arComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String vcComment;
+
     @PrePersist
     protected void onCreate() {
         submittedDate = LocalDateTime.now();

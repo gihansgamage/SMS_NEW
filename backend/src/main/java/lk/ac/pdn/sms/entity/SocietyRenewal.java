@@ -146,6 +146,15 @@ public class SocietyRenewal {
     @Column(name = "vc_approval_date")
     private LocalDateTime vcApprovalDate;
 
+    @Column(columnDefinition = "TEXT")
+    private String deanComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String arComment;
+
+    @Column(columnDefinition = "TEXT")
+    private String vcComment;
+
     @Column(nullable = false)
     private Integer year = LocalDate.now().getYear();
 
