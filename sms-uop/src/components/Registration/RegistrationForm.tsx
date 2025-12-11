@@ -50,7 +50,7 @@ const RegistrationForm: React.FC = () => {
     committeeMember: [{ regNo: '', name: '' }],
     agmDate: '',
     member: [{ regNo: '', name: '' }],
-    planningEvents: [{ month: '', activity: '' }]
+    planningEvents: [{ date: '', activity: '' }]
   });
 
   const updateFormData = (updates: Partial<SocietyRegistration>) => {

@@ -1,29 +1,23 @@
 import React from 'react';
 import { ArrowLeft, ArrowRight, Plus, Trash2 } from 'lucide-react';
-import { SocietyRegistration, SocietyRenewal, AdvisoryBoardMember, Society } from '../../../types';
+import { SocietyRegistration, AdvisoryBoardMember } from '../../../types';
 import FormField from '../../Common/FormField';
 import { validateStaffEmail, validateMobile } from '../../../utils/validation';
 
 interface SocietyInfoStepProps {
-  formData: Partial<SocietyRegistration> | Partial<SocietyRenewal>;
-  updateFormData: (updates: Partial<SocietyRegistration> | Partial<SocietyRenewal>) => void;
+  formData: Partial<SocietyRegistration>;
+  updateFormData: (updates: Partial<SocietyRegistration>) => void;
   onNext: () => void;
   onPrev: () => void;
-  isRenewal?: boolean;
-  activeSocieties?: Society[];
-  errors?: { [key: string]: string };
 }
 
 const SocietyInfoStep: React.FC<SocietyInfoStepProps> = ({
                                                            formData,
                                                            updateFormData,
                                                            onNext,
-                                                           onPrev,
-                                                           isRenewal = false,
-                                                           activeSocieties = [],
-                                                           errors: externalErrors = {}
+                                                           onPrev
                                                          }) => {
-  const [errors, setErrors] = React.useState<{ [key: string]: string }>(externalErrors);
+  const [errors, setErrors] = React.useState<{ [key: string]: string }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
