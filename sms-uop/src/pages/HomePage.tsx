@@ -1,16 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Calendar, FileText, Search, TrendingUp, Clock, ArrowRight, ShieldCheck } from 'lucide-react';
-import { useData } from '../contexts/DataContext';
+import { apiService } from '../services/api';
+
+interface EventPermission {
+  id: number;
+  eventName: string;
+  societyName: string;
+  eventDate: string;
+  timeFrom: string;
+  timeTo: string;
+  place: string;
+  status: string;
+}
+
+interface Stats {
+  activeSocieties: number;
+  totalSocieties: number;
+  currentYearRegistrations: number;
+}
 
 const HomePage: React.FC = () => {
-  const { eventPermissions, stats, loading } = useData();
+  const [upcomingEvents, setUpcomingEvents] = useState<EventPermission[]>([]);
+  const [stats, setStats] = useState<Stats>({ activeSocieties: 0, totalSocieties: 0, currentYearRegistrations: 0 });
+  const [loading, setLoading] = useState(true);
 
-  // Filter for approved upcoming events
-  const upcomingEvents = eventPermissions.filter(event => {
-    const status = event.status ? (event.status as string).toUpperCase() : '';
-    return new Date(event.eventDate) > new Date() && status === 'APPROVED';
-  }).slice(0, 5); // Show top 5
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [eventsRes, statsRes] = await Promise.all([
+          apiService.events.getUpcoming(5),
+          apiService.societies.getStatistics()
+        ]);
+        setUpcomingEvents(eventsRes.data || []);
+        setStats(statsRes.data || { activeSocieties: 0, totalSocieties: 0, currentYearRegistrations: 0 });
+      } catch (error) {
+        console.error('Failed to fetch homepage data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (loading) {
     return (
@@ -51,7 +84,7 @@ const HomePage: React.FC = () => {
                   <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg">
                       <Users className="h-5 w-5 text-blue-600" />
-                      <span className="font-semibold text-blue-900">{stats?.activeSocieties || 0} Active Societies</span>
+                      <span className="font-semibold text-blue-900">{stats.activeSocieties} Active Societies</span>
                     </div>
                     <div className="flex items-center space-x-2 bg-green-50 p-3 rounded-lg">
                       <Calendar className="h-5 w-5 text-green-600" />

@@ -5,8 +5,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -21,6 +23,9 @@ public interface EventPermissionRepository extends JpaRepository<EventPermission
 
     @Query("SELECT e FROM EventPermission e WHERE e.status = 'APPROVED' AND e.eventDate >= CURRENT_DATE ORDER BY e.eventDate ASC")
     List<EventPermission> findUpcomingApprovedEvents();
+
+    @Query("SELECT e FROM EventPermission e WHERE e.status = 'APPROVED' AND e.eventDate >= :currentDate ORDER BY e.eventDate ASC")
+    Page<EventPermission> findUpcomingApprovedEvents(@Param("currentDate") LocalDate currentDate, Pageable pageable);
 
     // Added Missing Count Method
     long countByStatus(EventPermission.EventStatus status);

@@ -87,4 +87,9 @@ public class EventPermissionController {
         boolean isValid = eventService.validateApplicantPosition(societyName, position, regNo, email);
         return ResponseEntity.ok(isValid);
     }
+
+    @GetMapping("/public/upcoming")
+    public ResponseEntity<List<EventPermission>> getUpcomingEvents(@RequestParam(defaultValue = "5") int limit) {
+        return ResponseEntity.ok(eventService.getUpcomingEvents(limit));
+    }
 }

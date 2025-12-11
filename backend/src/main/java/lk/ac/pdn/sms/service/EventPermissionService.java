@@ -10,6 +10,7 @@ import lk.ac.pdn.sms.repository.SocietyRepository;
 import lk.ac.pdn.sms.repository.AdminUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -269,5 +270,11 @@ public class EventPermissionService {
     private String normalizeRegistrationNumber(String regNo) {
         if (regNo == null) return "";
         return regNo.toUpperCase().replaceAll("[\\s/]", "");
+    }
+
+    public List<EventPermission> getUpcomingEvents(int limit) {
+        Pageable pageable = PageRequest.of(0, limit);
+        Page<EventPermission> page = eventRepository.findUpcomingApprovedEvents(LocalDate.now(), pageable);
+        return page.getContent();
     }
 }

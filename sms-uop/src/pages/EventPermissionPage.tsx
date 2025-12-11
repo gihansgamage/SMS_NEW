@@ -133,59 +133,112 @@ const EventPermissionPage: React.FC = () => {
   const Step1Applicant = () => (
       <div className="space-y-6">
         <h2 className="text-2xl font-semibold mb-4">Applicant Information</h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Society <span className="text-red-500">*</span></label>
-          <select name="societyName" value={formData.societyName} onChange={(e) => updateFormData({societyName: e.target.value})} className="w-full px-4 py-2 border rounded-lg">
+
+        {/* 1. Society Name - First */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Society Name <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="societyName"
+            value={formData.societyName}
+            onChange={(e) => updateFormData({societyName: e.target.value})}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
+            required
+          >
             <option value="">Select Society...</option>
             {activeSocieties.map(s => <option key={s.id} value={s.societyName}>{s.societyName}</option>)}
           </select>
+          <p className="mt-1 text-xs text-gray-500">Select the society you represent</p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
-          <FormField label="Full Name" name="applicantName" value={formData.applicantName} onChange={(e) => updateFormData({applicantName: e.target.value})} required />
-          <FormField label="Registration No" name="applicantRegNo" value={formData.applicantRegNo} onChange={(e) => updateFormData({applicantRegNo: e.target.value})} required />
-          <FormField label="Email" name="applicantEmail" type="email" value={formData.applicantEmail} onChange={(e) => updateFormData({applicantEmail: e.target.value})} required />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Faculty <span className="text-red-500">*</span></label>
-            <select
-              name="applicantFaculty"
-              value={formData.applicantFaculty}
-              onChange={(e) => updateFormData({applicantFaculty: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+
+        {/* 2. Position - Second */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Your Position in Society <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="applicantPosition"
+            value={formData.applicantPosition}
+            onChange={(e) => updateFormData({applicantPosition: e.target.value})}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-base"
+            required
+          >
+            <option value="">Select Position...</option>
+            <option value="President">President</option>
+            <option value="Vice President">Vice President</option>
+            <option value="Secretary">Secretary</option>
+            <option value="Joint Secretary">Joint Secretary</option>
+            <option value="Junior Treasurer">Junior Treasurer</option>
+            <option value="Editor">Editor</option>
+          </select>
+          <p className="mt-1 text-xs text-gray-500">Only key positions can request event permissions</p>
+        </div>
+
+        {/* 3. Personal Details - Third */}
+        <div className="border-t pt-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Personal Details</h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <FormField
+              label="Full Name"
+              name="applicantName"
+              value={formData.applicantName}
+              onChange={(e) => updateFormData({applicantName: e.target.value})}
               required
-            >
-              <option value="">Select Faculty...</option>
-              {FACULTIES.map(faculty => (
-                <option key={faculty} value={faculty}>{faculty}</option>
-              ))}
-            </select>
-          </div>
-          <FormField label="Mobile" name="applicantMobile" value={formData.applicantMobile} onChange={(e) => updateFormData({applicantMobile: e.target.value})} required />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Position in Society <span className="text-red-500">*</span></label>
-            <select
-              name="applicantPosition"
-              value={formData.applicantPosition}
-              onChange={(e) => updateFormData({applicantPosition: e.target.value})}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            />
+            <FormField
+              label="Registration Number"
+              name="applicantRegNo"
+              value={formData.applicantRegNo}
+              onChange={(e) => updateFormData({applicantRegNo: e.target.value})}
               required
-            >
-              <option value="">Select Position...</option>
-              <option value="President">President</option>
-              <option value="Vice President">Vice President</option>
-              <option value="Secretary">Secretary</option>
-              <option value="Joint Secretary">Joint Secretary</option>
-              <option value="Junior Treasurer">Junior Treasurer</option>
-              <option value="Editor">Editor</option>
-            </select>
-            <p className="mt-1 text-xs text-gray-500">Only key positions can request event permissions</p>
+            />
+            <FormField
+              label="Email Address"
+              name="applicantEmail"
+              type="email"
+              value={formData.applicantEmail}
+              onChange={(e) => updateFormData({applicantEmail: e.target.value})}
+              required
+            />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Faculty <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="applicantFaculty"
+                value={formData.applicantFaculty}
+                onChange={(e) => updateFormData({applicantFaculty: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                required
+              >
+                <option value="">Select Faculty...</option>
+                {FACULTIES.map(faculty => (
+                  <option key={faculty} value={faculty}>{faculty}</option>
+                ))}
+              </select>
+            </div>
+            <FormField
+              label="Mobile Number"
+              name="applicantMobile"
+              value={formData.applicantMobile}
+              onChange={(e) => updateFormData({applicantMobile: e.target.value})}
+              required
+            />
           </div>
         </div>
+
         {validationError && (
           <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             {validationError}
           </div>
         )}
-        <div className="flex justify-end mt-6"><button onClick={nextStep} className="bg-blue-600 text-white px-6 py-2 rounded-lg">Next</button></div>
+
+        <div className="flex justify-end mt-6">
+          <button onClick={nextStep} className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Next
+          </button>
+        </div>
       </div>
   );
 

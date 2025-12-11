@@ -48,6 +48,7 @@ export const apiService = {
   events: {
     request: (data: any) => apiClient.post('/events/request', data),
     getById: (id: string) => apiClient.get(`/events/${id}`),
+    getUpcoming: (limit?: number) => apiClient.get('/events/public/upcoming', { params: { limit: limit || 5 } }),
     downloadPDF: (id: string) => apiClient.get(`/events/download/${id}`, { responseType: 'blob' }),
     getPending: () => apiClient.get('/events/admin/pending'),
     getAll: (params?: { page?: number; size?: number; status?: string }) =>
