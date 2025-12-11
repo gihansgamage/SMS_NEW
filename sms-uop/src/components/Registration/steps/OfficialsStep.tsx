@@ -1,12 +1,12 @@
 import React from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { SocietyRegistration } from '../../../types';
+import { SocietyRegistration, SocietyRenewal } from '../../../types';
 import FormField from '../../Common/FormField';
-import { validateStudentEmail, validateMobile, validateRegistrationNumber, validateStaffEmail } from '../../../utils/validation';
+import { validateStudentEmail, validateMobile, validateRegistrationNumber } from '../../../utils/validation';
 
 interface OfficialsStepProps {
-  formData: Partial<SocietyRegistration>;
-  updateFormData: (updates: Partial<SocietyRegistration>) => void;
+  formData: Partial<SocietyRegistration> | Partial<SocietyRenewal>;
+  updateFormData: (updates: Partial<SocietyRegistration> | Partial<SocietyRenewal>) => void;
   onNext: () => void;
   onPrev: () => void;
 }
