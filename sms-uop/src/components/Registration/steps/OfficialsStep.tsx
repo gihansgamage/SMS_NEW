@@ -2,7 +2,7 @@ import React from 'react';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { SocietyRegistration } from '../../../types';
 import FormField from '../../Common/FormField';
-import { validateStudentEmail, validateMobile, validateRegistrationNumber} from '../../../utils/validation';
+import { validateStudentEmail, validateMobile, validateRegistrationNumber, validateStaffEmail } from '../../../utils/validation';
 
 interface OfficialsStepProps {
   formData: Partial<SocietyRegistration>;

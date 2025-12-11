@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
-import type { SocietyRenewal } from '../types';
+import { FACULTIES, SocietyRenewal, AdvisoryBoardMember, CommitteeMember, Member, PlanningEvent } from '../types';
 import StepIndicator from '../components/Common/StepIndicator';
 import ApplicantInfoStep from '../components/Registration/steps/ApplicantInfoStep';
 import SocietyInfoStep from '../components/Registration/steps/SocietyInfoStep';
 import OfficialsStep from '../components/Registration/steps/OfficialsStep';
 import MembersStep from '../components/Registration/steps/MembersStep';
 import ReviewStep from '../components/Registration/steps/ReviewStep';
-import { apiService } from '../services/api';
 
 const steps = [
   { title: 'Applicant', description: 'Personal information' },
@@ -23,8 +22,6 @@ const RenewalPage: React.FC = () => {
   const { societies, addRenewal, addActivityLog } = useData();
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [formData, setFormData] = useState<Partial<SocietyRenewal>>({
     applicantFullName: '',
     applicantRegNo: '',
@@ -33,7 +30,13 @@ const RenewalPage: React.FC = () => {
     applicantMobile: '',
     societyName: '',
     seniorTreasurer: {
-      title: '', name: '', designation: '', department: '', email: '', address: '', mobile: ''
+      title: '',
+      name: '',
+      designation: '',
+      department: '',
+      email: '',
+      address: '',
+      mobile: ''
     },
     advisoryBoard: [{ name: '', designation: '', department: '' }],
     bankAccount: '',
@@ -53,54 +56,100 @@ const RenewalPage: React.FC = () => {
     website: ''
   });
 
-  const existingSocieties = [...societies].sort((a, b) =>
-      a.societyName.localeCompare(b.societyName)
-  );
+  const activeSocieties = societies.filter(s => s.status === 'active');
 
   const updateFormData = (updates: Partial<SocietyRenewal>) => {
     setFormData(prev => ({ ...prev, ...updates }));
+
+    // Clear related errors when data is updated
+    Object.keys(updates).forEach(key => {
+      if (errors[key]) {
+        setErrors(prev => {
+          const newErrors = { ...prev };
+          delete newErrors[key];
+          return newErrors;
+        });
+      }
+    });
   };
 
   const nextStep = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    }
   };
 
   const prevStep = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      const payload = {
-        ...formData,
-        // Ensure lists are properly formatted if necessary
-      };
+  const handleSubmit = () => {
+    // Validate required fields
+    const newErrors: { [key: string]: string } = {};
 
-      await apiService.renewals.submit(payload);
-
-      addActivityLog(
-          'Society Renewal Submitted',
-          formData.societyName || 'Unknown',
-          'user-' + formData.applicantRegNo,
-          formData.applicantFullName || 'Unknown'
-      );
-
-      alert(`Renewal application submitted successfully! A confirmation email has been sent to ${formData.applicantEmail}`);
-      navigate('/');
-
-    } catch (error: any) {
-      console.error("Renewal submission failed:", error);
-      alert(`Submission Error: ${error.response?.data?.message || "Connection failed"}`);
-    } finally {
-      setIsSubmitting(false);
+    if (!formData.bankAccount || formData.bankAccount.trim() === '') {
+      newErrors.bankAccount = 'Bank account is required for renewal';
     }
+
+    if (!formData.bankName || formData.bankName.trim() === '') {
+      newErrors.bankName = 'Bank name is required for renewal';
+    }
+
+    if (!formData.difficulties || formData.difficulties.trim() === '') {
+      newErrors.difficulties = 'Please describe difficulties faced during the previous year';
+    }
+
+    if (!formData.previousActivities || formData.previousActivities.length === 0) {
+      newErrors.previousActivities = 'Please add at least one previous activity';
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) {
+      // Scroll to first error
+      const firstErrorField = Object.keys(newErrors)[0];
+      const element = document.querySelector(`[name="${firstErrorField}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
+
+    const renewal: SocietyRenewal = {
+      ...formData,
+      id: Math.random().toString(36).substr(2, 9),
+      status: 'pending_dean',
+      isDeanApproved: false,
+      isARApproved: false,
+      isVCApproved: false,
+      submittedDate: new Date().toISOString(),
+      year: new Date().getFullYear()
+    } as SocietyRenewal;
+
+    addRenewal(renewal);
+    addActivityLog(
+        'Society Renewal Submitted',
+        renewal.societyName,
+        'user-' + renewal.applicantRegNo,
+        renewal.applicantFullName
+    );
+
+    alert(`Renewal application submitted successfully! A confirmation email has been sent to ${renewal.applicantEmail}`);
+    navigate('/');
   };
 
   const renderStep = () => {
     switch (currentStep) {
       case 0:
-        return <ApplicantInfoStep formData={formData} updateFormData={updateFormData} onNext={nextStep} />;
+        return (
+            <ApplicantInfoStep
+                formData={formData}
+                updateFormData={updateFormData}
+                onNext={nextStep}
+            />
+        );
       case 1:
         return (
             <SocietyInfoStep
@@ -109,31 +158,42 @@ const RenewalPage: React.FC = () => {
                 onNext={nextStep}
                 onPrev={prevStep}
                 isRenewal={true}
-                activeSocieties={existingSocieties}
+                activeSocieties={activeSocieties}
                 errors={errors}
             />
         );
       case 2:
-        return <OfficialsStep formData={formData} updateFormData={updateFormData} onNext={nextStep} onPrev={prevStep} />;
+        return (
+            <OfficialsStep
+                formData={formData}
+                updateFormData={updateFormData}
+                onNext={nextStep}
+                onPrev={prevStep}
+            />
+        );
       case 3:
-        return <MembersStep formData={formData} updateFormData={updateFormData} onNext={nextStep} onPrev={prevStep} isRenewal={true} />;
+        return (
+            <MembersStep
+                formData={formData}
+                updateFormData={updateFormData}
+                onNext={nextStep}
+                onPrev={prevStep}
+                isRenewal={true}
+            />
+        );
       case 4:
-        return <ReviewStep formData={formData} onSubmit={handleSubmit} onPrev={prevStep} />;
+        return (
+            <ReviewStep
+                formData={formData}
+                onSubmit={handleSubmit}
+                onPrev={prevStep}
+                isRenewal={true}
+            />
+        );
       default:
         return null;
     }
   };
-
-  if (isSubmitting) {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Submitting renewal application...</p>
-          </div>
-        </div>
-    );
-  }
 
   return (
       <div className="min-h-screen bg-gray-50 py-8">
@@ -141,9 +201,11 @@ const RenewalPage: React.FC = () => {
           <div className="bg-white rounded-xl shadow-lg p-8">
             <div className="mb-8">
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Society Renewal</h1>
-              <p className="text-gray-600">Renew your existing society registration</p>
+              <p className="text-gray-600">Renew your existing society registration with the University of Peradeniya</p>
             </div>
+
             <StepIndicator steps={steps} currentStep={currentStep} />
+
             {renderStep()}
           </div>
         </div>
