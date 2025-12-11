@@ -32,26 +32,26 @@ const AdminApprovals: React.FC<{ user: any }> = ({ user }) => {
   }, []);
 
   const handleAction = async (id: string, type: string, action: 'approve' | 'reject') => {
-    const reason = action === 'reject' ? prompt('Enter rejection reason:') : null;
-    if (action === 'reject' && !reason) return;
+    const comment = action === 'reject' ? prompt('Enter rejection reason:') : prompt('Enter optional comment (or press OK to skip):');
+    if (action === 'reject' && !comment) return;
 
     try {
       if (type === 'registration') {
         action === 'approve'
-            ? await apiService.admin.approveRegistration(id, {})
-            : await apiService.admin.rejectRegistration(id, { reason: reason || '' });
+            ? await apiService.admin.approveRegistration(id, { comment: comment || undefined })
+            : await apiService.admin.rejectRegistration(id, { comment: comment || '' });
       } else if (type === 'renewal') {
         action === 'approve'
-            ? await apiService.renewals.approve(id, {})
-            : await apiService.renewals.reject(id, { reason: reason || '' });
+            ? await apiService.admin.approveRenewal(id, { comment: comment || undefined })
+            : await apiService.admin.rejectRenewal(id, { comment: comment || '' });
       } else if (type === 'event') {
         action === 'approve'
-            ? await apiService.events.approve(id, {})
-            : await apiService.events.reject(id, { reason: reason || '' });
+            ? await apiService.admin.approveEvent(id, { comment: comment || undefined })
+            : await apiService.admin.rejectEvent(id, { comment: comment || '' });
       }
 
       alert(`Successfully ${action}ed!`);
-      fetchPending(); // Refresh list
+      fetchPending();
     } catch (err) {
       alert('Action failed. Please try again.');
     }

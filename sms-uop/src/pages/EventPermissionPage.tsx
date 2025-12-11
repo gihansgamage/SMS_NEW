@@ -20,8 +20,10 @@ const EventPermissionPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Sort Active Societies
-  const activeSocieties = [...societies].sort((a, b) => a.societyName.localeCompare(b.societyName));
+  // Filter and Sort Active Societies
+  const activeSocieties = [...societies]
+    .filter(s => s.status === 'active')
+    .sort((a, b) => a.societyName.localeCompare(b.societyName));
 
   const [formData, setFormData] = useState({
     // Applicant
@@ -29,6 +31,7 @@ const EventPermissionPage: React.FC = () => {
     applicantName: '',
     applicantRegNo: '',
     applicantEmail: '',
+    applicantFaculty: '',
     applicantPosition: '',
     applicantMobile: '',
 
@@ -107,6 +110,7 @@ const EventPermissionPage: React.FC = () => {
           <FormField label="Full Name" name="applicantName" value={formData.applicantName} onChange={(e) => updateFormData({applicantName: e.target.value})} required />
           <FormField label="Registration No" name="applicantRegNo" value={formData.applicantRegNo} onChange={(e) => updateFormData({applicantRegNo: e.target.value})} required />
           <FormField label="Email" name="applicantEmail" type="email" value={formData.applicantEmail} onChange={(e) => updateFormData({applicantEmail: e.target.value})} required />
+          <FormField label="Faculty" name="applicantFaculty" value={formData.applicantFaculty} onChange={(e) => updateFormData({applicantFaculty: e.target.value})} required placeholder="e.g. Faculty of Engineering" />
           <FormField label="Mobile" name="applicantMobile" value={formData.applicantMobile} onChange={(e) => updateFormData({applicantMobile: e.target.value})} required />
           <FormField label="Position" name="applicantPosition" value={formData.applicantPosition} onChange={(e) => updateFormData({applicantPosition: e.target.value})} required placeholder="e.g. Secretary" />
         </div>

@@ -2,7 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'dean' | 'assistant_registrar' | 'vice_chancellor' | 'student_service' | 'test_user';
+  role: 'dean' | 'assistant_registrar' | 'vice_chancellor' | 'premises_officer' | 'student_service' | 'test_user';
   faculty?: string;
 }
 
@@ -81,6 +81,13 @@ export interface SocietyRegistration {
   isDeanApproved: boolean;
   isARApproved: boolean;
   isVCApproved: boolean;
+  deanComment?: string;
+  arComment?: string;
+  vcComment?: string;
+  deanApprovalDate?: string;
+  arApprovalDate?: string;
+  vcApprovalDate?: string;
+  approvedDate?: string;
   submittedDate: string;
   year: number;
   rejectionReason?: string;
@@ -100,6 +107,7 @@ export interface EventPermission {
   applicantEmail: string;
   applicantPosition: string;
   applicantMobile: string;
+  applicantFaculty: string;
   eventName: string;
   eventDate: string;
   timeFrom: string;
@@ -121,9 +129,15 @@ export interface EventPermission {
   premisesOfficerDivision: string;
   receiptNumber?: string;
   paymentDate?: string;
-  status: 'pending_ar' | 'pending_vc' | 'approved' | 'rejected';
+  status: 'pending_dean' | 'pending_premises' | 'pending_ar' | 'pending_vc' | 'approved' | 'rejected';
+  isDeanApproved: boolean;
+  isPremisesApproved: boolean;
   isARApproved: boolean;
   isVCApproved: boolean;
+  deanComment?: string;
+  premisesComment?: string;
+  arComment?: string;
+  vcComment?: string;
   submittedDate: string;
   rejectionReason?: string;
 }

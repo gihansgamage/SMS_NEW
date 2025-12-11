@@ -32,21 +32,15 @@ export const apiService = {
   },
 
   renewals: {
-    submit: (data: any) => apiClient.post('/renewals/submit', data),
+    submit: (data: any) => apiClient.post('/societies/renew', data),
     getById: (id: string) => apiClient.get(`/renewals/${id}`),
-    // NEW: Get latest data for pre-fill
     getLatestData: (societyName: string) => apiClient.get(`/renewals/latest-data?societyName=${encodeURIComponent(societyName)}`),
-
     downloadPDF: (id: string) => apiClient.get(`/renewals/download/${id}`, { responseType: 'blob' }),
     getStatistics: () => apiClient.get('/renewals/statistics'),
     getPending: (params?: { faculty?: string; status?: string }) =>
         apiClient.get('/renewals/admin/pending', { params }),
     getAll: (params?: { page?: number; size?: number; year?: number; status?: string }) =>
         apiClient.get('/renewals/admin/all', { params }),
-    approve: (id: string, data: { comments?: string; reason?: string }) =>
-        apiClient.post(`/renewals/admin/approve/${id}`, data),
-    reject: (id: string, data: { reason: string }) =>
-        apiClient.post(`/renewals/admin/reject/${id}`, data),
   },
 
   events: {
@@ -56,10 +50,6 @@ export const apiService = {
     getPending: () => apiClient.get('/events/admin/pending'),
     getAll: (params?: { page?: number; size?: number; status?: string }) =>
         apiClient.get('/events/admin/all', { params }),
-    approve: (id: string, data: { comments?: string }) =>
-        apiClient.post(`/events/admin/approve/${id}`, data),
-    reject: (id: string, data: { reason: string }) =>
-        apiClient.post(`/events/admin/reject/${id}`, data),
   },
 
   admin: {
@@ -76,10 +66,18 @@ export const apiService = {
         apiClient.get('/admin/societies', { params }),
     sendBulkEmail: (data: { subject: string; body: string; recipients: string[] }) =>
         apiClient.post('/admin/send-email', data),
-    approveRegistration: (id: string, data: { comments?: string }) =>
+    approveRegistration: (id: string, data: { comment?: string }) =>
         apiClient.post(`/admin/approve-registration/${id}`, data),
-    rejectRegistration: (id: string, data: { reason: string }) =>
+    rejectRegistration: (id: string, data: { comment: string }) =>
         apiClient.post(`/admin/reject-registration/${id}`, data),
+    approveRenewal: (id: string, data: { comment?: string }) =>
+        apiClient.post(`/admin/approve-renewal/${id}`, data),
+    rejectRenewal: (id: string, data: { comment: string }) =>
+        apiClient.post(`/admin/reject-renewal/${id}`, data),
+    approveEvent: (id: string, data: { comment?: string }) =>
+        apiClient.post(`/admin/approve-event/${id}`, data),
+    rejectEvent: (id: string, data: { comment: string }) =>
+        apiClient.post(`/admin/reject-event/${id}`, data),
     addUser: (data: any) => apiClient.post('/admin/ar/manage-admin/add', data),
     removeUser: (email: string) => apiClient.post(`/admin/ar/manage-admin/remove?email=${email}`),
   },
