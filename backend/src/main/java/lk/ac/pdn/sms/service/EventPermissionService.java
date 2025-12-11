@@ -54,8 +54,7 @@ public class EventPermissionService {
         event.setApplicantMobile(dto.getApplicantMobile());
         event.setApplicantPosition(dto.getApplicantPosition());
 
-        // FIXED: Use getPrimaryFaculty() instead of getFaculty()
-        event.setApplicantFaculty(society.getPrimaryFaculty());
+        event.setApplicantFaculty(society.getFaculty());
 
         event.setSocietyName(dto.getSocietyName());
         event.setEventName(dto.getEventName());
@@ -252,8 +251,9 @@ public class EventPermissionService {
                 break;
             case "junior treasurer":
             case "junior-treasurer":
-                officialRegNo = society.getJuniorTreasurerRegNo();
-                officialEmail = society.getJuniorTreasurerEmail();
+            case "treasurer":
+                officialRegNo = society.getTreasurerRegNo();
+                officialEmail = society.getTreasurerEmail();
                 break;
             case "editor":
                 officialRegNo = society.getEditorRegNo();

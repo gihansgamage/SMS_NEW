@@ -50,6 +50,16 @@ public class ActivityLogService {
         activityLogRepository.save(log);
     }
 
+    public void logAction(String action, String target, Long userId, String userName, String additionalInfo) {
+        ActivityLog log = new ActivityLog();
+        log.setUserId(userId);
+        log.setUserName(userName);
+        log.setAction(action);
+        log.setTarget(target);
+
+        activityLogRepository.save(log);
+    }
+
     public List<ActivityLog> getAllLogs() {
         return activityLogRepository.findAll();
     }

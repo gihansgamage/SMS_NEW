@@ -27,11 +27,13 @@ public class ApprovalDto {
     private Long applicationId;
     private ApprovalAction action;
     private String rejectionReason;
+    private String comment;
+    private String approverRole;
 
     // --- HELPER METHOD (FIXES YOUR ERROR) ---
     // This allows RenewalService to call .getReason() instead of .getRejectionReason()
     public String getReason() {
-        return rejectionReason;
+        return rejectionReason != null ? rejectionReason : comment;
     }
 
     public enum ApprovalAction {
