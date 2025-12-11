@@ -85,9 +85,20 @@ public class EventPermission {
     private Boolean isVcApproved = false;
 
     private LocalDateTime deanApprovalDate;
+    @Column(columnDefinition = "TEXT")
+    private String deanComment;
+
     private LocalDateTime premisesApprovalDate;
+    @Column(columnDefinition = "TEXT")
+    private String premisesComment;
+
     private LocalDateTime arApprovalDate;
+    @Column(columnDefinition = "TEXT")
+    private String arComment;
+
     private LocalDateTime vcApprovalDate;
+    @Column(columnDefinition = "TEXT")
+    private String vcComment;
 
     private LocalDateTime submittedDate;
     private LocalDateTime approvedDate;
