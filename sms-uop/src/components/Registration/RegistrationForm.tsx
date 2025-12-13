@@ -24,6 +24,7 @@ const RegistrationForm: React.FC = () => {
   const [submittedId, setSubmittedId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessPage, setShowSuccessPage] = useState(false);
+  const [showFinalPage, setShowFinalPage] = useState(false);
   const [formData, setFormData] = useState<Partial<SocietyRegistration>>({
     applicantFullName: '',
     applicantRegNo: '',
@@ -86,13 +87,43 @@ const RegistrationForm: React.FC = () => {
         agmDate: formData.agmDate,
         bankAccount: formData.bankAccount,
         bankName: formData.bankName,
-        seniorTreasurer: formData.seniorTreasurer,
-        president: formData.president,
-        vicePresident: formData.vicePresident,
-        secretary: formData.secretary,
-        jointSecretary: formData.jointSecretary,
-        juniorTreasurer: formData.juniorTreasurer,
-        editor: formData.editor,
+        seniorTreasurerTitle: formData.seniorTreasurer?.title,
+        seniorTreasurerFullName: formData.seniorTreasurer?.name,
+        seniorTreasurerDesignation: formData.seniorTreasurer?.designation,
+        seniorTreasurerDepartment: formData.seniorTreasurer?.department,
+        seniorTreasurerEmail: formData.seniorTreasurer?.email,
+        seniorTreasurerAddress: formData.seniorTreasurer?.address,
+        seniorTreasurerMobile: formData.seniorTreasurer?.mobile,
+        presidentRegNo: formData.president?.regNo,
+        presidentName: formData.president?.name,
+        presidentAddress: formData.president?.address,
+        presidentEmail: formData.president?.email,
+        presidentMobile: formData.president?.mobile,
+        vicePresidentRegNo: formData.vicePresident?.regNo,
+        vicePresidentName: formData.vicePresident?.name,
+        vicePresidentAddress: formData.vicePresident?.address,
+        vicePresidentEmail: formData.vicePresident?.email,
+        vicePresidentMobile: formData.vicePresident?.mobile,
+        secretaryRegNo: formData.secretary?.regNo,
+        secretaryName: formData.secretary?.name,
+        secretaryAddress: formData.secretary?.address,
+        secretaryEmail: formData.secretary?.email,
+        secretaryMobile: formData.secretary?.mobile,
+        jointSecretaryRegNo: formData.jointSecretary?.regNo,
+        jointSecretaryName: formData.jointSecretary?.name,
+        jointSecretaryAddress: formData.jointSecretary?.address,
+        jointSecretaryEmail: formData.jointSecretary?.email,
+        jointSecretaryMobile: formData.jointSecretary?.mobile,
+        juniorTreasurerRegNo: formData.juniorTreasurer?.regNo,
+        juniorTreasurerName: formData.juniorTreasurer?.name,
+        juniorTreasurerAddress: formData.juniorTreasurer?.address,
+        juniorTreasurerEmail: formData.juniorTreasurer?.email,
+        juniorTreasurerMobile: formData.juniorTreasurer?.mobile,
+        editorRegNo: formData.editor?.regNo,
+        editorName: formData.editor?.name,
+        editorAddress: formData.editor?.address,
+        editorEmail: formData.editor?.email,
+        editorMobile: formData.editor?.mobile,
         advisoryBoard: formData.advisoryBoard,
         committeeMember: formData.committeeMember,
         member: formData.member,
@@ -140,10 +171,8 @@ const RegistrationForm: React.FC = () => {
 
   const handleSendForApproval = async () => {
     if (confirm('Are you sure you want to send this application for approval?\n\nThis will:\n• Notify the Faculty Dean for initial approval\n• Send a copy to the Senior Treasurer\n• Begin the official approval workflow')) {
-      alert(`✓ Application sent for approval successfully!\n\n• Faculty Dean has been notified\n• Senior Treasurer (${formData.seniorTreasurer?.email}) has been notified\n• You will receive email updates at each approval stage`);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      setShowSuccessPage(false);
+      setShowFinalPage(true);
     }
   };
 
@@ -197,6 +226,87 @@ const RegistrationForm: React.FC = () => {
     }
   };
 
+  if (showFinalPage) {
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-12 flex items-center">
+          <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-12 text-center">
+              <div className="flex justify-center mb-6">
+                <div className="bg-green-100 rounded-full p-6">
+                  <Send className="w-16 h-16 text-green-600" />
+                </div>
+              </div>
+
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
+                Application Sent for Approval!
+              </h1>
+
+              <p className="text-lg text-gray-700 mb-6">
+                Your application for <strong>{formData.societyName}</strong> has been successfully submitted to the approval workflow.
+              </p>
+
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 rounded-lg p-6 mb-8">
+                <h3 className="font-semibold text-gray-900 mb-4 text-lg">Approval Process Started</h3>
+                <div className="space-y-3 text-left">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">✓</div>
+                    <div>
+                      <div className="font-medium text-gray-900">Faculty Dean</div>
+                      <div className="text-sm text-gray-600">Notification sent to {formData.applicantFaculty} Dean</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-green-500 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">✓</div>
+                    <div>
+                      <div className="font-medium text-gray-900">Senior Treasurer</div>
+                      <div className="text-sm text-gray-600">Notification sent to {formData.seniorTreasurer?.email}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 opacity-50">
+                    <div className="bg-gray-300 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">2</div>
+                    <div>
+                      <div className="font-medium text-gray-700">Assistant Registrar</div>
+                      <div className="text-sm text-gray-600">Pending Dean approval</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3 opacity-50">
+                    <div className="bg-gray-300 text-white rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">3</div>
+                    <div>
+                      <div className="font-medium text-gray-700">Vice Chancellor</div>
+                      <div className="text-sm text-gray-600">Final approval stage</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 text-left">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-yellow-700">
+                      <strong>Important:</strong> You will receive email notifications at each approval stage. The approval process typically takes 5-7 business days.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                  onClick={() => navigate('/')}
+                  className="bg-blue-600 text-white px-8 py-4 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg flex items-center justify-center space-x-2 mx-auto text-lg font-semibold"
+              >
+                <Home className="w-5 h-5" />
+                <span>Go to Homepage</span>
+              </button>
+            </div>
+          </div>
+        </div>
+    );
+  }
+
   if (showSuccessPage) {
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 py-12">
@@ -236,10 +346,6 @@ const RegistrationForm: React.FC = () => {
                       <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">3</span>
                       <span>Click "Send for Approval" to begin the approval process (Dean → AR → VC)</span>
                     </li>
-                    <li className="flex items-start">
-                      <span className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">4</span>
-                      <span>You'll receive email notifications at each approval stage</span>
-                    </li>
                   </ul>
                 </div>
 
@@ -268,14 +374,6 @@ const RegistrationForm: React.FC = () => {
                     <span className="font-semibold">Send for Approval</span>
                   </button>
                 </div>
-
-                <button
-                    onClick={() => navigate('/')}
-                    className="text-gray-600 hover:text-gray-900 transition-colors flex items-center justify-center space-x-2 mx-auto"
-                >
-                  <Home className="w-4 h-4" />
-                  <span>Return to Homepage</span>
-                </button>
               </div>
             </div>
           </div>
