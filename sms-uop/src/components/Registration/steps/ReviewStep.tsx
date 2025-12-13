@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Download, Send, FileText, Eye } from 'lucide-react';
 import { SocietyRegistration } from '../../../types';
 import EmailValidationIndicator from '../../Common/EmailValidationIndicator';
+import { generateApplicationPDF } from '../../../utils/pdfGenerator';
 
 interface ReviewStepProps {
   formData: Partial<SocietyRegistration>;
@@ -17,8 +18,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({
   const [showPreview, setShowPreview] = useState(false);
 
   const handleDownloadPDF = () => {
-    // Simulate PDF generation
-    alert('PDF download feature will be implemented with the backend integration. The PDF will include all application details with proper formatting, signatures, and university letterhead.');
+    generateApplicationPDF(formData);
   };
 
   const handleSubmit = () => {
